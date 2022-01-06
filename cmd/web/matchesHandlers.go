@@ -14,7 +14,6 @@ type Match struct {
 	Stars     string
 	Team1     string
 	Team2     string
-	Lan       bool
 	MatchTime time.Time
 }
 
@@ -27,11 +26,10 @@ func GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 			stars := element.Attr("stars")
 			team1 := element.ChildText("div.matchTeam.team1") + " " + element.Attr("team1")
 			team2 := element.ChildText("div.matchTeam.team2") + " " + element.Attr("team2")
-			lan, _ := strconv.ParseBool(element.Attr("lan"))
 			matchTime, _ := strconv.ParseInt(strings.TrimSpace(element.ChildAttr("div.matchTime", "data-unix")), 10, 64)
 			date := time.UnixMilli(matchTime).UTC()
 
-			m := Match{Link: link, Stars: stars, Team1: team1, Team2: team2, Lan: lan, MatchTime: date}
+			m := Match{Link: link, Stars: stars, Team1: team1, Team2: team2, MatchTime: date}
 			matches = append(matches, m)
 		})
 	})

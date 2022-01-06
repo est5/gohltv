@@ -7,8 +7,10 @@ import (
 func main() {
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/matches/upcoming", GetUpcomingMatches)
+	mux.HandleFunc("/matches/", GetUpcomingMatches)
 	//mux.HandleFunc("/matches/live", GetLiveMatches)
+	//mux.HandleFunc("/matches/top", GetTopTierMatches)
+	//mux.HandleFunc("/matches/lan", GetLanMatches)
 
 	http.ListenAndServe(":3000", mux)
 }
