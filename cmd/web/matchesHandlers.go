@@ -19,8 +19,8 @@ type Match struct {
 }
 
 func GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
-	var matches []Match
 	c := colly.NewCollector()
+	var matches []Match
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
 		e.ForEach("div.upcomingMatch", func(i int, element *colly.HTMLElement) {
 			link := "https://www.hltv.org" + element.ChildAttr("a.match", "href")
@@ -35,41 +35,16 @@ func GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 			matches = append(matches, m)
 		})
 	})
-	c.Visit("https://www.hltv.org/matches")
+	c.OnRequest(func(request *colly.Request) {
+		request.Headers.Set("User-Agent", RandomString())
+	})
 
+	c.Visit("https://www.hltv.org/matches")
 	js, err := json.Marshal(matches)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
-
-//func GetLiveMatches(w http.ResponseWriter, r *http.Request) {
-//	var matches []Match
-//	c := colly.NewCollector()
-//	c.OnHTML("div.liveMatchesContainer", func(e *colly.HTMLElement) {
-//		e.ForEach("div.liveMatch-container", func(i int, element *colly.HTMLElement) {
-//			link := "https://www.hltv.org" + element.ChildAttr("a.match", "href")
-//			stars := element.Attr("stars")
-//			team1 := element.ChildText("div.matchTeamName") + " " + element.Attr("team1")
-//			team2 := element.ChildText("div.matchTeamName") + " " + element.Attr("team2")
-//			lan, _ := strconv.ParseBool(element.Attr("lan"))
-//
-//			m := Match{Link: link, Stars: stars, Team1: team1, Team2: team2, Lan: lan}
-//			matches = append(matches, m)
-//		})
-//	})
-//	c.Visit("https://www.hltv.org/matches")
-//
-//	js, err := json.Marshal(matches)
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//		return
-//	}
-//
-//	w.Header().Set("Content-Type", "application/json")
-//	w.Write(js)
-//}
