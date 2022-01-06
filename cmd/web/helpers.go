@@ -1,6 +1,8 @@
 package main
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

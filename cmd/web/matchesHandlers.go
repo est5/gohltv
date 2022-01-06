@@ -17,7 +17,7 @@ type Match struct {
 	MatchTime time.Time
 }
 
-func GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	var matches []Match
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
@@ -35,14 +35,22 @@ func GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	})
 	c.OnRequest(func(request *colly.Request) {
 		request.Headers.Set("User-Agent", RandomString())
+		app.log.Infof("Request to %v", request.URL.RequestURI())
 	})
 
-	c.Visit("https://www.hltv.org/matches")
+	err := c.Visit("https://www.hltv.org/matches")
+	if err != nil {
+		app.log.Fatal(err)
+	}
 	js, err := json.Marshal(matches)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	_, err = w.Write(js)
+	if err != nil {
+		app.log.Fatal(err)
+	}
 }
