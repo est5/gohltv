@@ -10,13 +10,9 @@ type application struct {
 }
 
 func main() {
-	mux := http.NewServeMux()
 	app := application{log: log.New()}
-	mux.HandleFunc("/matches/", app.GetUpcomingMatches)
-	//mux.HandleFunc("/matches/live", GetLiveMatches)
-	//mux.HandleFunc("/matches/top", GetTopTierMatches)
-	//mux.HandleFunc("/matches/lan", GetLanMatches)
-
+	srv := &http.Server{Addr: ":3000", Handler: app.routes()}
 	log.Infoln("Starting at port :3000")
-	http.ListenAndServe(":3000", mux)
+	srv.ListenAndServe()
+
 }

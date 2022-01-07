@@ -13,3 +13,13 @@ func RandomString() string {
 	}
 	return string(b)
 }
+
+func getLink(uri string) string {
+	switch uri {
+	case "top":
+		return "https://www.hltv.org/matches?predefinedFilter=top_tier"
+	case "lan":
+		return "https://www.hltv.org/matches?predefinedFilter=lan_only"
+	}
+	return "https://www.hltv.org/matches"
+}

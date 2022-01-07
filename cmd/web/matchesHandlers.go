@@ -2,24 +2,20 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
-type Match struct {
-	Link      string
-	Stars     string
-	Team1     string
-	Team2     string
-	MatchTime time.Time
-}
-
 func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	var matches []Match
+	vars := mux.Vars(r)
+	url := getLink(vars["type"])
+	var matches []models.UpcomingMatch
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
 		e.ForEach("div.upcomingMatch", func(i int, element *colly.HTMLElement) {
 			link := "https://www.hltv.org" + element.ChildAttr("a.match", "href")
@@ -29,7 +25,7 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 			matchTime, _ := strconv.ParseInt(strings.TrimSpace(element.ChildAttr("div.matchTime", "data-unix")), 10, 64)
 			date := time.UnixMilli(matchTime).UTC()
 
-			m := Match{Link: link, Stars: stars, Team1: team1, Team2: team2, MatchTime: date}
+			m := models.UpcomingMatch{Link: link, Stars: stars, Team1: team1, Team2: team2, MatchTime: date}
 			matches = append(matches, m)
 		})
 	})
@@ -38,11 +34,11 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 		app.log.Infof("Request to %v", request.URL.RequestURI())
 	})
 
-	err := c.Visit("https://www.hltv.org/matches")
+	err := c.Visit(url)
 	if err != nil {
 		app.log.Fatal(err)
 	}
-	js, err := json.Marshal(matches)
+	js, err := json.MarshalIndent(matches, "", " ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
