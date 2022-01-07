@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,13 +13,8 @@ import (
 func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	var results []models.ResultSet
-	vars := mux.Vars(r)
-	var stars string
-	if vars["stars"] != "" {
-		stars = "?stars=" + vars["stars"]
-	}
 	prefix := "https://www.hltv.org"
-
+	url := resultsParams(r)
 	c.OnHTML("div.results", func(e *colly.HTMLElement) {
 		e.ForEach("div.result-con", func(_ int, element *colly.HTMLElement) {
 			link := prefix + element.ChildAttr("a.a-reset", "href")
@@ -54,7 +48,6 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 		app.log.Infof("Request to %v", request.URL.RequestURI())
 	})
 
-	url := "https://www.hltv.org/results/" + stars
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Error(err)
