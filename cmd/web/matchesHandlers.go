@@ -16,6 +16,7 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	url := getLink(vars["type"])
 	var matches []models.UpcomingMatch
+
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
 		e.ForEach("div.upcomingMatch", func(i int, element *colly.HTMLElement) {
 			link := "https://www.hltv.org" + element.ChildAttr("a.match", "href")
@@ -29,15 +30,21 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 			matches = append(matches, m)
 		})
 	})
+
 	c.OnRequest(func(request *colly.Request) {
 		request.Headers.Set("User-Agent", RandomString())
 		app.log.Infof("Request to %v", request.URL.RequestURI())
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		app.log.Errorf("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Fatal(err)
 	}
+
 	js, err := json.MarshalIndent(matches, "", " ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
