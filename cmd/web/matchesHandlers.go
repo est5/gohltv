@@ -14,7 +14,7 @@ import (
 func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	vars := mux.Vars(r)
-	url := getLink(vars["type"])
+	url := matchesLink(vars["type"])
 	var matches []models.UpcomingMatch
 
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
@@ -23,10 +23,20 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 			stars := element.Attr("stars")
 			team1 := element.ChildText("div.matchTeam.team1") + " " + element.Attr("team1")
 			team2 := element.ChildText("div.matchTeam.team2") + " " + element.Attr("team2")
-			matchTime, _ := strconv.ParseInt(strings.TrimSpace(element.ChildAttr("div.matchTime", "data-unix")), 10, 64)
+			matchTime, _ := strconv.ParseInt(
+				strings.TrimSpace(element.ChildAttr("div.matchTime", "data-unix")),
+				10,
+				64,
+			)
 			date := time.UnixMilli(matchTime).UTC()
 
-			m := models.UpcomingMatch{Link: link, Stars: stars, Team1: team1, Team2: team2, MatchTime: date}
+			m := models.UpcomingMatch{
+				Link:      link,
+				Stars:     stars,
+				Team1:     team1,
+				Team2:     team2,
+				MatchTime: date.Format("2 Jan 06, 15:04UTC"),
+			}
 			matches = append(matches, m)
 		})
 	})
@@ -34,10 +44,6 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 	c.OnRequest(func(request *colly.Request) {
 		request.Headers.Set("User-Agent", RandomString())
 		app.log.Infof("Request to %v", request.URL.RequestURI())
-	})
-
-	c.OnError(func(r *colly.Response, err error) {
-		app.log.Errorf("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	err := c.Visit(url)

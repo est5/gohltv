@@ -14,7 +14,7 @@ func RandomString() string {
 	return string(b)
 }
 
-func getLink(uri string) string {
+func matchesLink(uri string) string {
 	switch uri {
 	case "top":
 		return "https://www.hltv.org/matches?predefinedFilter=top_tier"

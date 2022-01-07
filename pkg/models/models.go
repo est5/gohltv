@@ -1,13 +1,18 @@
 package models
 
-import "time"
-
 type UpcomingMatch struct {
 	Link      string
 	Stars     string
 	Team1     string
 	Team2     string
-	MatchTime time.Time
+	MatchTime string
+}
+
+type NewsArticle struct {
+	Link          string
+	Text          string
+	CommentsCount int
+	Date          string
 }
 
 type LiveMatch struct {
