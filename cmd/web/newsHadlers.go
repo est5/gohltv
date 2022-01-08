@@ -38,7 +38,7 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 
 	url := "https://www.hltv.org/news/archive/" + year + "/" + month
 	err := c.Visit(url)
-	// idk why but u can visit smth like /news/archive/2025/january on site
+	// u can visit smth like /news/archive/2025/january
 	if err != nil {
 		app.log.Error(err)
 		err := c.Visit("https://www.hltv.org/news/archive/")

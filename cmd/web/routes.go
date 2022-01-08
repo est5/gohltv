@@ -7,6 +7,7 @@ import (
 
 func (app *application) routes() http.Handler {
 	r := mux.NewRouter()
+
 	r.HandleFunc("/matches/{type}", app.GetUpcomingMatches).Methods("GET")
 	r.HandleFunc("/matches", app.GetUpcomingMatches).Methods("GET")
 	r.HandleFunc("/news/{year}/{month}", app.GetNews).Methods("GET")
@@ -15,6 +16,8 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/events/ongoing", app.GetOngoingEvents).Methods("GET")
 	r.HandleFunc("/events/upcoming", app.GetUpcomingEvents).Methods("GET")
 	//r.HandleFunc("/events/archive", app.GetFinishedEvents).Methods("GET")
+	//stats
+
 	r.Use(app.loggingMiddleware, app.headersMiddleware)
 	return r
 }
