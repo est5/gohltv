@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -32,27 +33,34 @@ func resultsParams(r *http.Request) (url string) {
 		return "https://www.hltv.org/results/"
 	}
 	url = "https://www.hltv.org/results/"
-	if params.Get("stars") != "" {
-		if strings.LastIndex(url, "?") != -1 {
-			url += "&stars=" + params.Get("stars")
-		} else {
-			url += "?stars=" + params.Get("stars")
-		}
-	}
-	if params.Get("offset") != "" {
-		if strings.LastIndex(url, "?") != -1 {
-			url += "&offset=" + params.Get("offset")
-		} else {
-			url += "?offset=" + params.Get("offset")
-		}
-	}
-	if params.Get("startDate") != "" {
-		if strings.LastIndex(url, "?") != -1 {
-			url += "&startDate=" + params.Get("startDate")
-		} else {
-			url += "?startDate=" + params.Get("startDate")
-		}
-	}
-
+	url = getParam(&params, &url, "stars")
+	url = getDate(&params, &url)
+	url = getParam(&params, &url, "offset")
+	url = getParam(&params, &url, "matchType")
+	url = getParam(&params, &url, "content")
+	url = getParam(&params, &url, "map")
+	url = getParam(&params, &url, "gameType")
 	return url
+}
+
+func getDate(params *url.Values, url *string) string {
+	if (params.Get("startDate") != "") && (params.Get("endDate") != "") {
+		if strings.LastIndex(*url, "?") != -1 {
+			*url += "&startDate=" + params.Get("startDate") + "&endDate=" + params.Get("endDate")
+		} else {
+			*url += "?startDate=" + params.Get("startDate") + "&endDate=" + params.Get("endDate")
+		}
+	}
+	return *url
+}
+
+func getParam(params *url.Values, url *string, paramName string) string {
+	if params.Get(paramName) != "" {
+		if strings.LastIndex(*url, "?") != -1 {
+			*url += "&" + paramName + "=" + params.Get(paramName)
+		} else {
+			*url += "?" + paramName + "=" + params.Get(paramName)
+		}
+	}
+	return *url
 }
