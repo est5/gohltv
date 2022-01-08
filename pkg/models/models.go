@@ -4,7 +4,9 @@ type UpcomingMatch struct {
 	Link      string
 	Stars     string
 	Team1     string
+	Team1Id   int
 	Team2     string
+	Team2Id   int
 	MatchTime string
 }
 
@@ -37,6 +39,7 @@ type OngoingEvent struct {
 type UpcomingEvent struct {
 	Link    string
 	Name    string
+	EventId int
 	Date    string
 	Prize   string
 	Type    string
