@@ -39,10 +39,89 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Error(err)
-		err := c.Visit("https://www.hltv.org/events")
-		if err != nil {
-			app.log.Fatal(err)
-		}
+	}
+
+	js, err := json.MarshalIndent(events, "", " ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(js)
+	if err != nil {
+		app.log.Fatal(err)
+	}
+
+}
+
+func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
+	c := colly.NewCollector()
+	prefix := "https://www.hltv.org"
+	url := eventsParams(r)
+	var events []models.UpcomingEvent
+
+	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {
+		e.ForEach("a.a-reset.small-event.standard-box", func(_ int, element *colly.HTMLElement) {
+			link := prefix + element.Attr("href")
+			eventId := strings.Split(link, "/")
+			id, _ := strconv.Atoi(eventId[4])
+			name := element.ChildText("div.text-ellipsis")
+			allLines := element.ChildText("td.col-value.small-col")
+			//teamNum := strings.Split(allLines, "O$")[0]
+			teamNum := allLines[:strings.IndexAny(allLines, "$O")]
+			prize := element.ChildAttr("td.col-value.small-col.prizePoolEllipsis", "title")
+			country := element.ChildText("span.smallCountry")
+			date := element.ChildText("span.col-desc")
+			date = strings.Split(date, "|")[1]
+			country = strings.TrimSpace(strings.Trim(country, "|"))
+
+			event := models.UpcomingEvent{
+				Link:          strings.TrimSpace(link),
+				Name:          strings.TrimSpace(name),
+				EventId:       id,
+				Date:          strings.TrimSpace(date),
+				Prize:         prize,
+				NumberOfTeams: teamNum,
+				EventLocation: country,
+			}
+
+			events = append(events, event)
+		})
+
+		e.ForEach("a.a-reset.standard-box.big-event", func(_ int, element *colly.HTMLElement) {
+			link := prefix + element.Attr("href")
+			eventId := strings.Split(link, "/")
+			id, _ := strconv.Atoi(eventId[4])
+			name := element.ChildText("div.big-event-name")
+			location := element.ChildText("div.location-top-teams")
+			date := element.ChildText("td.col-value.col-date")
+			additionalInfo := strings.Split(element.ChildText("div.additional-info"), "\n")
+			prize := strings.TrimSpace(additionalInfo[1])
+			teams := strings.TrimSpace(additionalInfo[2])
+
+			event := models.UpcomingEvent{
+				Link:          link,
+				Name:          name,
+				EventId:       id,
+				Date:          date,
+				Prize:         prize,
+				NumberOfTeams: teams,
+				EventLocation: location,
+			}
+
+			events = append(events, event)
+		})
+	})
+
+	c.OnRequest(func(request *colly.Request) {
+		request.Headers.Set("User-Agent", RandomString())
+		app.log.Infof("Request to %v", request.URL.RequestURI())
+	})
+
+	err := c.Visit(url)
+	if err != nil {
+		app.log.Error(err)
 	}
 
 	js, err := json.MarshalIndent(events, "", " ")

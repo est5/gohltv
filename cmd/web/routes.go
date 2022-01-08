@@ -13,7 +13,8 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/news", app.GetNews).Methods("GET")
 	r.HandleFunc("/results", app.GetResults).Methods("GET")
 	r.HandleFunc("/events/ongoing", app.GetOngoingEvents).Methods("GET")
-	//r.HandleFunc("/events/upcoming", app.GetUpcomingEvents).Methods("GET")
+	r.HandleFunc("/events/upcoming", app.GetUpcomingEvents).Methods("GET")
+	r.HandleFunc("/events/archive", app.GetUpcomingEvents).Methods("GET")
 
 	return r
 }
