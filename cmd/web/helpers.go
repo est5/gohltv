@@ -46,9 +46,9 @@ func resultsParams(r *http.Request) (url string) {
 func getRangeParam(params *url.Values, url *string, start, end string) string {
 	if (params.Get(start) != "") && (params.Get(end) != "") {
 		if strings.LastIndex(*url, "?") != -1 {
-			*url += "&" + start + "=" + params.Get("startDate") + "&" + end + "=" + params.Get("endDate")
+			*url += "&" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
 		} else {
-			*url += "?" + start + "=" + params.Get("startDate") + "&" + end + "=" + params.Get("endDate")
+			*url += "?" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
 		}
 	}
 	return *url
