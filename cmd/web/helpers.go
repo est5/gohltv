@@ -34,7 +34,7 @@ func resultsParams(r *http.Request) (url string) {
 	}
 	url = "https://www.hltv.org/results/"
 	url = getParam(&params, &url, "stars")
-	url = getDate(&params, &url)
+	url = getRangeParam(&params, &url, "startDate", "endDate")
 	url = getParam(&params, &url, "offset")
 	url = getParam(&params, &url, "matchType")
 	url = getParam(&params, &url, "content")
@@ -43,12 +43,12 @@ func resultsParams(r *http.Request) (url string) {
 	return url
 }
 
-func getDate(params *url.Values, url *string) string {
-	if (params.Get("startDate") != "") && (params.Get("endDate") != "") {
+func getRangeParam(params *url.Values, url *string, start, end string) string {
+	if (params.Get(start) != "") && (params.Get(end) != "") {
 		if strings.LastIndex(*url, "?") != -1 {
-			*url += "&startDate=" + params.Get("startDate") + "&endDate=" + params.Get("endDate")
+			*url += "&" + start + "=" + params.Get("startDate") + "&" + end + "=" + params.Get("endDate")
 		} else {
-			*url += "?startDate=" + params.Get("startDate") + "&endDate=" + params.Get("endDate")
+			*url += "?" + start + "=" + params.Get("startDate") + "&" + end + "=" + params.Get("endDate")
 		}
 	}
 	return *url
@@ -63,4 +63,18 @@ func getParam(params *url.Values, url *string, paramName string) string {
 		}
 	}
 	return *url
+}
+
+func eventsParams(r *http.Request) (url string) {
+	params := r.URL.Query()
+	if len(params) == 0 {
+		return "https://www.hltv.org/events#tab-ALL"
+	}
+	url = "https://www.hltv.org/events/"
+	url = getParam(&params, &url, "eventType")
+	url = getRangeParam(&params, &url, "prizeMin", "prizeMax")
+	url = getParam(&params, &url, "team")   // id
+	url = getParam(&params, &url, "player") // id
+
+	return url + "#tab-ALL"
 }

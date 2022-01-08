@@ -26,3 +26,20 @@ type ResultSet struct {
 	MatchTime   string
 	Map         string
 }
+
+type OngoingEvent struct {
+	Link    string
+	Name    string
+	EventId int
+	Date    string
+}
+
+type UpcomingEvent struct {
+	Link    string
+	Name    string
+	Date    string
+	Prize   string
+	Type    string
+	Teams   string
+	Country string
+}
