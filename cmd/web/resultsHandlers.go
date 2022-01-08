@@ -25,7 +25,7 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 			)
 			date := time.UnixMilli(matchTime).UTC()
 			layout := "2 Jan 06, 15:04UTC"
-			formatedDate := date.Format(layout)
+			formattedDate := date.Format(layout)
 			team1 := element.ChildText("div.line-align.team1")
 			team2 := element.ChildText("div.line-align.team2")
 			mapText := element.ChildText("div.map-text")
@@ -35,17 +35,12 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 				ResultScore: resultScore,
 				Team1:       team1,
 				Team2:       team2,
-				MatchTime:   formatedDate,
+				MatchTime:   formattedDate,
 				Map:         mapText,
 			}
 
 			results = append(results, result)
 		})
-	})
-
-	c.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("User-Agent", RandomString())
-		app.log.Infof("Request to %v", request.URL.RequestURI())
 	})
 
 	err := c.Visit(url)
@@ -63,7 +58,6 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(js)
 	if err != nil {
 		app.log.Fatal(err)

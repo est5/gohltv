@@ -31,11 +31,6 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 			events = append(events, event)
 		})
 	})
-	c.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("User-Agent", RandomString())
-		app.log.Infof("Request to %v", request.URL.RequestURI())
-	})
-
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Error(err)
@@ -47,7 +42,6 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(js)
 	if err != nil {
 		app.log.Fatal(err)
@@ -114,11 +108,6 @@ func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request)
 		})
 	})
 
-	c.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("User-Agent", RandomString())
-		app.log.Infof("Request to %v", request.URL.RequestURI())
-	})
-
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Error(err)
@@ -130,7 +119,6 @@ func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(js)
 	if err != nil {
 		app.log.Fatal(err)

@@ -36,10 +36,6 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 		})
 	})
 
-	c.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("User-Agent", RandomString())
-		app.log.Infof("Request to %v", request.URL.RequestURI())
-	})
 	url := "https://www.hltv.org/news/archive/" + year + "/" + month
 	err := c.Visit(url)
 	// idk why but u can visit smth like /news/archive/2025/january on site
@@ -57,7 +53,6 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(js)
 	if err != nil {
 		app.log.Fatal(err)

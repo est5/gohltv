@@ -45,11 +45,6 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 		})
 	})
 
-	c.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("User-Agent", RandomString())
-		app.log.Infof("Request to %v", request.URL.RequestURI())
-	})
-
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Fatal(err)
@@ -60,8 +55,6 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(js)
 	if err != nil {
 		app.log.Fatal(err)
