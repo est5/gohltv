@@ -12,7 +12,6 @@ import (
 func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	var results []models.ResultSet
-	prefix := "https://www.hltv.org"
 	url := resultsParams(r)
 	c.OnHTML("div.results", func(e *colly.HTMLElement) {
 		e.ForEach("div.result-con", func(_ int, element *colly.HTMLElement) {
@@ -41,12 +40,14 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 			results = append(results, result)
 		})
 	})
+
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Errorf("Bad request to %v", url)
 		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
+
 	if err := ToJson(results, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)

@@ -10,7 +10,6 @@ import (
 
 func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	prefix := "https://www.hltv.org"
 	url := eventsParams(r)
 	var events []models.OngoingEvent
 
@@ -45,9 +44,8 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 
 }
 
-func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	prefix := "https://www.hltv.org"
 	url := eventsParams(r)
 	var events []models.UpcomingEvent
 
@@ -109,6 +107,54 @@ func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
+
+	if err := ToJson(events, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
+	c := colly.NewCollector()
+	url := eventsArchiveParams(r)
+	var events []models.ArchiveEvent
+
+	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {
+		e.ForEach("a.a-reset.small-event.standard-box", func(_ int, element *colly.HTMLElement) {
+			link := prefix + element.Attr("href")
+			eventId := strings.Split(link, "/")
+			id, _ := strconv.Atoi(eventId[4])
+			name := element.ChildText("div.text-ellipsis")
+			allLines := element.ChildText("td.col-value.small-col")
+			teamNum := allLines[:strings.IndexAny(allLines, "$O")]
+			prize := element.ChildAttr("td.col-value.small-col.prizePoolEllipsis", "title")
+			country := element.ChildText("span.smallCountry")
+			date := element.ChildText("span.col-desc")
+			date = strings.Split(date, "|")[1]
+			country = strings.TrimSpace(strings.Trim(country, "|"))
+
+			event := models.ArchiveEvent{
+				Link:          strings.TrimSpace(link),
+				Name:          strings.TrimSpace(name),
+				EventId:       id,
+				Date:          strings.TrimSpace(date),
+				Prize:         prize,
+				NumberOfTeams: teamNum,
+				EventLocation: country,
+			}
+
+			events = append(events, event)
+		})
+	})
+	err := c.Visit(url)
+	if err != nil {
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, "marshaling to json error", http.StatusBadRequest)
+		return
+	}
+
 	if err := ToJson(events, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)

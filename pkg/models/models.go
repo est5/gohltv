@@ -45,3 +45,5 @@ type UpcomingEvent struct {
 	NumberOfTeams string `json:"numberOfTeams,omitempty"`
 	EventLocation string `json:"eventLocation,omitempty"`
 }
+
+type ArchiveEvent UpcomingEvent

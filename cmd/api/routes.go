@@ -15,7 +15,7 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/results", app.GetResults)
 	r.HandleFunc("/events/ongoing", app.GetOngoingEvents)
 	r.HandleFunc("/events/upcoming", app.GetUpcomingEvents)
-	//r.HandleFunc("/events/archive", app.GetFinishedEvents)
+	r.HandleFunc("/events/archive", app.GetArchiveEvents)
 	//stats
 
 	r.Use(app.loggingMiddleware, app.headersMiddleware)

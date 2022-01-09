@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
 	"net/http"
@@ -11,6 +12,10 @@ import (
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+var JsonMarshalingError = "Error Marshaling to JSON"
+
+const prefix = "https://www.hltv.org"
 
 func ToJson(slice interface{}, w io.Writer) error {
 	e := json.NewEncoder(w)
@@ -54,6 +59,7 @@ func resultsParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, "gameType")
 	url = getParam(&params, &url, "team")
 	url = getParam(&params, &url, "player")
+	url = getParam(&params, &url, "event")
 	return url
 }
 
@@ -69,11 +75,15 @@ func getRangeParam(params *url.Values, url *string, start, end string) string {
 }
 
 func getParam(params *url.Values, url *string, paramName string) string {
-	if params.Get(paramName) != "" {
-		if strings.LastIndex(*url, "?") != -1 {
-			*url += "&" + paramName + "=" + params.Get(paramName)
-		} else {
-			*url += "?" + paramName + "=" + params.Get(paramName)
+	for _, val := range *params {
+		for i := 0; i < len(val); i++ {
+			if params.Get(paramName) != "" {
+				if strings.LastIndex(*url, "?") != -1 {
+					*url += "&" + paramName + "=" + val[i]
+				} else {
+					*url += "?" + paramName + "=" + val[i]
+				}
+			}
 		}
 	}
 	return *url
@@ -91,4 +101,23 @@ func eventsParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, "player") // id
 
 	return url + "#tab-ALL"
+}
+
+func eventsArchiveParams(r *http.Request) (url string) {
+	params := r.URL.Query()
+	if len(params) == 0 {
+		return "https://www.hltv.org/events/archive/"
+	}
+	url = "https://www.hltv.org/events/archive/"
+
+	url = getParam(&params, &url, "eventType")
+	url = getRangeParam(&params, &url, "prizeMin", "prizeMax")
+	url = getParam(&params, &url, "team")   // id
+	url = getParam(&params, &url, "player") // id
+	url = getRangeParam(&params, &url, "startDate", "endDate")
+	url = getParam(&params, &url, "gameType")
+	url = getParam(&params, &url, "offset")
+
+	log.Print(url)
+	return url
 }

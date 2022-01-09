@@ -18,7 +18,7 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
 		e.ForEach("div.upcomingMatch", func(i int, element *colly.HTMLElement) {
-			link := "https://www.hltv.org" + element.ChildAttr("a.match", "href")
+			link := prefix + element.ChildAttr("a.match", "href")
 			stars := element.Attr("stars")
 			team1 := element.ChildText("div.matchTeam.team1")
 			team1id, _ := strconv.Atoi(element.Attr("team1"))
@@ -47,12 +47,13 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, "marshaling to json error", http.StatusBadRequest)
+		http.Error(w, JsonMarshalingError, http.StatusBadRequest)
 		return
 	}
+
 	if err := ToJson(matches, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		http.Error(w, JsonMarshalingError, http.StatusInternalServerError)
 		return
 	}
 
