@@ -10,6 +10,7 @@ import (
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var JsonMarshalingError = "Error Marshaling to JSON"
+var UrlVisitError = "Error while visiting url"
 
 const Prefix = "https://www.hltv.org"
 

@@ -36,17 +36,17 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 	})
 
 	url := "https://www.hltv.org/news/archive/" + year + "/" + month
-	// u can visit smth like /news/archive/2025/january
+	//  "/news/archive/2025/january" valid uri
 
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, "marshaling to json error", http.StatusBadRequest)
+		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
 		return
 	}
 	if err := helpers.ToJson(articles, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
 		return
 	}
 

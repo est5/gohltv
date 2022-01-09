@@ -48,7 +48,7 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusBadRequest)
+		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
 		return
 	}
 
@@ -58,4 +58,51 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+}
+
+func (app *application) GetLiveMatches(w http.ResponseWriter, r *http.Request) {
+	c := colly.NewCollector()
+	//vars := mux.Vars(r)
+	url := helpers.Prefix + "/matches"
+	var liveMatches []models.LiveMatch
+	c.OnHTML("div.liveMatch-container", func(e *colly.HTMLElement) {
+		link := helpers.Prefix + e.ChildAttr("a.match.a-reset", "href")
+		stars, _ := strconv.Atoi(e.Attr("stars"))
+		matchId, _ := strconv.Atoi(e.Attr("data-scorebot-id"))
+		team1Id, _ := strconv.Atoi(e.Attr("team1"))
+		team2Id, _ := strconv.Atoi(e.Attr("team2"))
+		maps := e.Attr("data-maps")
+		teams := e.ChildAttrs("img.matchTeamLogo", "alt")
+		team1 := teams[0]
+		team2 := teams[1]
+		matchEvent := e.ChildAttr("img.matchEventLogo", "alt")
+		matchType := e.ChildText("div.matchMeta")
+		liveMatch := models.LiveMatch{
+			Link:           link,
+			MatchStars:     stars,
+			MatchId:        matchId,
+			Maps:           maps,
+			Team1:          team1,
+			Team1Id:        team1Id,
+			Team2:          team2,
+			Team2Id:        team2Id,
+			MatchEventName: matchType,
+			MatchType:      matchEvent,
+		}
+
+		liveMatches = append(liveMatches, liveMatch)
+	})
+
+	err := c.Visit(url)
+	if err != nil {
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
+		return
+	}
+
+	if err := helpers.ToJson(liveMatches, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
+		return
+	}
 }

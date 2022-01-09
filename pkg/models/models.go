@@ -2,7 +2,7 @@ package models
 
 type UpcomingMatch struct {
 	Link      string `json:"link,omitempty"`
-	Stars     string `json:"stars,omitempty"`
+	Stars     string `json:"stars,"`
 	Team1     string `json:"team1,omitempty"`
 	Team1Id   int    `json:"team1Id,omitempty"`
 	Team2     string `json:"team2,omitempty"`
@@ -18,6 +18,16 @@ type NewsArticle struct {
 }
 
 type LiveMatch struct {
+	Link           string `json:"link,omitempty"`
+	MatchStars     int    `json:"matchStars,"`
+	MatchId        int    `json:"matchId,omitempty"`
+	Maps           string `json:"maps"`
+	Team1          string `json:"team1,omitempty"`
+	Team1Id        int    `json:"team1Id"`
+	Team2          string `json:"team2,"`
+	Team2Id        int    `json:"team2Id"`
+	MatchEventName string `json:"matchEventName,omitempty"`
+	MatchType      string `json:"matchType,omitempty"`
 }
 
 type ResultSet struct {

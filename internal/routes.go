@@ -36,6 +36,7 @@ func Run() {
 func (app *application) routes() http.Handler {
 	r := mux.NewRouter().Methods("GET").Subrouter()
 
+	r.HandleFunc("/matches/live", app.GetLiveMatches)
 	r.HandleFunc("/matches/{type}", app.GetUpcomingMatches)
 	r.HandleFunc("/matches", app.GetUpcomingMatches)
 	r.HandleFunc("/news/{year}/{month}", app.GetNews)
@@ -45,6 +46,8 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/events/upcoming", app.GetUpcomingEvents)
 	r.HandleFunc("/events/archive", app.GetArchiveEvents)
 	//stats
+	//result for particular event and match
+	//forum?
 
 	r.Use(app.loggingMiddleware, app.headersMiddleware)
 	return r
