@@ -1,6 +1,7 @@
-package main
+package internal
 
 import (
+	"github.com/est5/gohltv/internal/helpers"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"github.com/gorilla/mux"
@@ -16,10 +17,9 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 	month := vars["month"]
 	var articles []models.NewsArticle
 
-	prefix := "https://www.hltv.org"
 	c.OnHTML("div.standard-box.standard-list", func(e *colly.HTMLElement) {
 		e.ForEach("a.newsline.article", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.Attr("href")
+			link := helpers.Prefix + element.Attr("href")
 			text := element.ChildText("div.newstext")
 			data := strings.Split(element.ChildText("div.newstc"), "\n")
 			date := data[0]
@@ -44,7 +44,7 @@ func (app *application) GetNews(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-	if err := ToJson(articles, w); err != nil {
+	if err := helpers.ToJson(articles, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
 		return

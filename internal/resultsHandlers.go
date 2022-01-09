@@ -1,6 +1,7 @@
-package main
+package internal
 
 import (
+	"github.com/est5/gohltv/internal/helpers"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"net/http"
@@ -12,10 +13,10 @@ import (
 func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	var results []models.ResultSet
-	url := resultsParams(r)
+	url := helpers.ResultsParams(r)
 	c.OnHTML("div.results", func(e *colly.HTMLElement) {
 		e.ForEach("div.result-con", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.ChildAttr("a.a-reset", "href")
+			link := helpers.Prefix + element.ChildAttr("a.a-reset", "href")
 			matchTime, _ := strconv.ParseInt(
 				strings.TrimSpace(element.Attr("data-zonedgrouping-entry-unix")),
 				10,
@@ -48,7 +49,7 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ToJson(results, w); err != nil {
+	if err := helpers.ToJson(results, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
 		return

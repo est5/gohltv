@@ -1,50 +1,12 @@
-package main
+package helpers
 
 import (
-	"encoding/json"
-	"errors"
-	log "github.com/sirupsen/logrus"
-	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-var JsonMarshalingError = "Error Marshaling to JSON"
-
-const prefix = "https://www.hltv.org"
-
-func ToJson(slice interface{}, w io.Writer) error {
-	e := json.NewEncoder(w)
-	err := e.Encode(slice)
-	if err != nil {
-		return errors.New("marshaling to json error")
-	}
-	return nil
-}
-
-func RandomString() string {
-	b := make([]byte, rand.Intn(10)+10)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
-
-func matchesLink(uri string) string {
-	switch uri {
-	case "top":
-		return "https://www.hltv.org/matches?predefinedFilter=top_tier"
-	case "lan":
-		return "https://www.hltv.org/matches?predefinedFilter=lan_only"
-	}
-	return "https://www.hltv.org/matches"
-}
-
-func resultsParams(r *http.Request) (url string) {
+func ResultsParams(r *http.Request) (url string) {
 	params := r.URL.Query()
 	if len(params) == 0 {
 		return "https://www.hltv.org/results/"
@@ -89,7 +51,7 @@ func getParam(params *url.Values, url *string, paramName string) string {
 	return *url
 }
 
-func eventsParams(r *http.Request) (url string) {
+func EventsParams(r *http.Request) (url string) {
 	params := r.URL.Query()
 	if len(params) == 0 {
 		return "https://www.hltv.org/events#tab-ALL"
@@ -103,7 +65,7 @@ func eventsParams(r *http.Request) (url string) {
 	return url + "#tab-ALL"
 }
 
-func eventsArchiveParams(r *http.Request) (url string) {
+func EventsArchiveParams(r *http.Request) (url string) {
 	params := r.URL.Query()
 	if len(params) == 0 {
 		return "https://www.hltv.org/events/archive/"
@@ -118,6 +80,5 @@ func eventsArchiveParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, "gameType")
 	url = getParam(&params, &url, "offset")
 
-	log.Print(url)
 	return url
 }

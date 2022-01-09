@@ -1,6 +1,7 @@
-package main
+package internal
 
 import (
+	"github.com/est5/gohltv/internal/helpers"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"github.com/gorilla/mux"
@@ -13,12 +14,12 @@ import (
 func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	vars := mux.Vars(r)
-	url := matchesLink(vars["type"])
+	url := helpers.MatchesLink(vars["type"])
 	var matches []models.UpcomingMatch
 
 	c.OnHTML("div.upcomingMatchesContainer", func(e *colly.HTMLElement) {
 		e.ForEach("div.upcomingMatch", func(i int, element *colly.HTMLElement) {
-			link := prefix + element.ChildAttr("a.match", "href")
+			link := helpers.Prefix + element.ChildAttr("a.match", "href")
 			stars := element.Attr("stars")
 			team1 := element.ChildText("div.matchTeam.team1")
 			team1id, _ := strconv.Atoi(element.Attr("team1"))
@@ -47,13 +48,13 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 	err := c.Visit(url)
 	if err != nil {
 		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, JsonMarshalingError, http.StatusBadRequest)
+		http.Error(w, helpers.JsonMarshalingError, http.StatusBadRequest)
 		return
 	}
 
-	if err := ToJson(matches, w); err != nil {
+	if err := helpers.ToJson(matches, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, JsonMarshalingError, http.StatusInternalServerError)
+		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
 		return
 	}
 

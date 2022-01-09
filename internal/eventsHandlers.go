@@ -1,6 +1,7 @@
-package main
+package internal
 
 import (
+	"github.com/est5/gohltv/internal/helpers"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"net/http"
@@ -10,12 +11,12 @@ import (
 
 func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := eventsParams(r)
+	url := helpers.EventsParams(r)
 	var events []models.OngoingEvent
 
 	c.OnHTML("div#ALL.tab-content", func(e *colly.HTMLElement) {
 		e.ForEach("a.a-reset.ongoing-event", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.Attr("href")
+			link := helpers.Prefix + element.Attr("href")
 			name := element.ChildText("div.event-name-small")
 			date := element.ChildText("span.col-desc")
 			eventLink := strings.Split(link, "/")
@@ -36,7 +37,7 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-	if err := ToJson(events, w); err != nil {
+	if err := helpers.ToJson(events, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
 		return
@@ -46,12 +47,12 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 
 func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := eventsParams(r)
+	url := helpers.EventsParams(r)
 	var events []models.UpcomingEvent
 
 	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {
 		e.ForEach("a.a-reset.small-event.standard-box", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.Attr("href")
+			link := helpers.Prefix + element.Attr("href")
 			eventId := strings.Split(link, "/")
 			id, _ := strconv.Atoi(eventId[4])
 			name := element.ChildText("div.text-ellipsis")
@@ -77,7 +78,7 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 		})
 
 		e.ForEach("a.a-reset.standard-box.big-event", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.Attr("href")
+			link := helpers.Prefix + element.Attr("href")
 			eventId := strings.Split(link, "/")
 			id, _ := strconv.Atoi(eventId[4])
 			name := element.ChildText("div.big-event-name")
@@ -108,7 +109,7 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := ToJson(events, w); err != nil {
+	if err := helpers.ToJson(events, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
 		return
@@ -118,12 +119,12 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 
 func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := eventsArchiveParams(r)
+	url := helpers.EventsArchiveParams(r)
 	var events []models.ArchiveEvent
 
 	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {
 		e.ForEach("a.a-reset.small-event.standard-box", func(_ int, element *colly.HTMLElement) {
-			link := prefix + element.Attr("href")
+			link := helpers.Prefix + element.Attr("href")
 			eventId := strings.Split(link, "/")
 			id, _ := strconv.Atoi(eventId[4])
 			name := element.ChildText("div.text-ellipsis")
@@ -155,7 +156,7 @@ func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := ToJson(events, w); err != nil {
+	if err := helpers.ToJson(events, w); err != nil {
 		app.log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
 		return
