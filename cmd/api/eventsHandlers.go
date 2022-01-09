@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"net/http"
@@ -31,20 +30,17 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 			events = append(events, event)
 		})
 	})
+
 	err := c.Visit(url)
 	if err != nil {
-		app.log.Error(err)
-	}
-
-	js, err := json.MarshalIndent(events, "", " ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-
-	_, err = w.Write(js)
-	if err != nil {
-		app.log.Fatal(err)
+	if err := ToJson(events, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		return
 	}
 
 }
@@ -62,7 +58,6 @@ func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request)
 			id, _ := strconv.Atoi(eventId[4])
 			name := element.ChildText("div.text-ellipsis")
 			allLines := element.ChildText("td.col-value.small-col")
-			//teamNum := strings.Split(allLines, "O$")[0]
 			teamNum := allLines[:strings.IndexAny(allLines, "$O")]
 			prize := element.ChildAttr("td.col-value.small-col.prizePoolEllipsis", "title")
 			country := element.ChildText("span.smallCountry")
@@ -110,18 +105,14 @@ func (app application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request)
 
 	err := c.Visit(url)
 	if err != nil {
-		app.log.Error(err)
-	}
-
-	js, err := json.MarshalIndent(events, "", " ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-
-	_, err = w.Write(js)
-	if err != nil {
-		app.log.Fatal(err)
+	if err := ToJson(events, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		return
 	}
 
 }

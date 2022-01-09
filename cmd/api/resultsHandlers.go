@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"net/http"
@@ -42,24 +41,15 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 			results = append(results, result)
 		})
 	})
-
 	err := c.Visit(url)
 	if err != nil {
-		app.log.Error(err)
-		err := c.Visit("https://www.hltv.org/results")
-		if err != nil {
-			app.log.Fatal(err)
-		}
-	}
-
-	js, err := json.MarshalIndent(results, "", " ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-
-	_, err = w.Write(js)
-	if err != nil {
-		app.log.Fatal(err)
+	if err := ToJson(results, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		return
 	}
 }

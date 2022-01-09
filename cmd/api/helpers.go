@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"io"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -8,6 +11,15 @@ import (
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func ToJson(slice interface{}, w io.Writer) error {
+	e := json.NewEncoder(w)
+	err := e.Encode(slice)
+	if err != nil {
+		return errors.New("marshaling to json error")
+	}
+	return nil
+}
 
 func RandomString() string {
 	b := make([]byte, rand.Intn(10)+10)
@@ -40,6 +52,8 @@ func resultsParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, "content")
 	url = getParam(&params, &url, "map")
 	url = getParam(&params, &url, "gameType")
+	url = getParam(&params, &url, "team")
+	url = getParam(&params, &url, "player")
 	return url
 }
 

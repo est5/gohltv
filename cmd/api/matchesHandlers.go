@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/est5/gohltv/pkg/models"
 	"github.com/gocolly/colly"
 	"github.com/gorilla/mux"
@@ -47,16 +46,14 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 
 	err := c.Visit(url)
 	if err != nil {
-		app.log.Fatal(err)
-	}
-
-	js, err := json.MarshalIndent(matches, "", " ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		app.log.Errorf("Bad request to %v", url)
+		http.Error(w, "marshaling to json error", http.StatusBadRequest)
 		return
 	}
-	_, err = w.Write(js)
-	if err != nil {
-		app.log.Fatal(err)
+	if err := ToJson(matches, w); err != nil {
+		app.log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, "marshaling to json error", http.StatusInternalServerError)
+		return
 	}
+
 }
