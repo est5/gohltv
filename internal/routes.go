@@ -45,7 +45,7 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/events/ongoing", app.GetOngoingEvents)
 	r.HandleFunc("/events/upcoming", app.GetUpcomingEvents)
 	r.HandleFunc("/events/archive", app.GetArchiveEvents)
-	//stats
+	r.HandleFunc("/stats/players", app.GetStatsPlayers)
 	//result for particular event and match
 	//forum?
 

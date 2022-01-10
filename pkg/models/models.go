@@ -57,3 +57,14 @@ type UpcomingEvent struct {
 }
 
 type ArchiveEvent UpcomingEvent
+
+type StatsPlayer struct {
+	Link        string   `json:"link,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Team        []string `json:"teams,omitempty"`
+	MapsCount   int      `json:"mapsCount,omitempty"`
+	RoundsCount int      `json:"roundsCount,omitempty"`
+	KDDiff      int      `json:"K-DDiff,omitempty"`
+	KD          float64  `json:"K/D,omitempty"`
+	Rating      float64  `json:"rating,omitempty"`
+}
