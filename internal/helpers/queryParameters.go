@@ -7,20 +7,24 @@ import (
 )
 
 const (
-	eventType = "eventType"
-	prizeMin  = "prizeMin"
-	prizeMax  = "prizeMax"
-	team      = "team"
-	player    = "player"
-	startDate = "startDate"
-	endDate   = "endDate"
-	gameType  = "gameType"
-	offset    = "offset"
-	stars     = "stars"
-	content   = "content"
-	matchType = "matchType"
-	gameMap   = "map"
-	event     = "event"
+	eventType     = "eventType"
+	prizeMin      = "prizeMin"
+	prizeMax      = "prizeMax"
+	team          = "team"
+	player        = "player"
+	startDate     = "startDate"
+	endDate       = "endDate"
+	gameType      = "gameType"
+	offset        = "offset"
+	stars         = "stars"
+	content       = "content"
+	matchType     = "matchType"
+	gameMap       = "map"
+	event         = "event"
+	rankingFilter = "rankingFilter"
+	bestOfX       = "bestOfX"
+	minMapCount   = "minMapCount"
+	side          = "side"
 )
 
 func ResultsParams(r *http.Request) (url string) {
@@ -40,7 +44,8 @@ func ResultsParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, team)
 	url = getParam(&params, &url, player)
 	url = getParam(&params, &url, event)
-	return url
+
+	return
 }
 
 func EventsParams(r *http.Request) (url string) {
@@ -75,7 +80,25 @@ func EventsArchiveParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, gameType)
 	url = getParam(&params, &url, offset)
 
-	return url
+	return
+}
+
+func PlayerStatsParams(r *http.Request) (url string) {
+	params := r.URL.Query()
+	statsUrl := "https://www.hltv.org/stats/players" + r.RequestURI
+	if len(params) == 0 {
+		return statsUrl
+	}
+	url = statsUrl
+	url = getParam(&params, &url, matchType)
+	url = getRangeParam(&params, &url, startDate, endDate)
+	url = getParam(&params, &url, rankingFilter)
+	url = getParam(&params, &url, bestOfX)
+	url = getParam(&params, &url, gameMap)
+	url = getParam(&params, &url, offset)
+	url = getParam(&params, &url, minMapCount)
+	url = getParam(&params, &url, side)
+	return
 }
 
 func getRangeParam(params *url.Values, url *string, start, end string) string {
