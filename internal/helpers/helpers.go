@@ -45,14 +45,14 @@ func MatchesLink(uri string) string {
 
 func Visit(w http.ResponseWriter, visit error, url string, toJson interface{}) {
 	if visit != nil {
-		log.Errorf("Bad request to %v ", url)
 		http.Error(w, UrlVisitError, http.StatusBadRequest)
+		log.Fatalf("Bad request to %v : %v ", url, visit)
 		return
 	}
 
 	if err := ToJson(toJson, w); err != nil {
-		log.Errorf("Error marshaling to json %v", err)
 		http.Error(w, JsonMarshalingError, http.StatusInternalServerError)
+		log.Fatal("Error marshaling to json %v", err)
 		return
 	}
 }

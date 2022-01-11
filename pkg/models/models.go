@@ -103,3 +103,12 @@ type StatsPlayerPistols struct {
 	KD        float64  `json:"K/D,omitempty"`
 	Rating    float64  `json:"rating,omitempty"`
 }
+
+type StatsTeams struct {
+	Link   string  `json:"link"`
+	Name   string  `json:"name"`
+	Maps   int     `json:"maps"`
+	KDDiff string  `json:"K-DDiff"`
+	KD     float64 `json:"K/D"`
+	Rating float64 `json:"rating"`
+}

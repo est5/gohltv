@@ -54,6 +54,7 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/stats/players/openingkills", app.GetStatsPlayersOpeners)
 	r.HandleFunc("/stats/players/pistols", app.GetStatsPlayersPistols)
 
+	r.HandleFunc("/stats/teams", app.GetStatsPlayers)
 	//result for particular event and match
 	//forum?
 
