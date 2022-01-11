@@ -52,7 +52,7 @@ func (app *application) routes() http.Handler {
 	r.HandleFunc("/stats/players", app.GetStatsPlayers)
 	r.HandleFunc("/stats/players/flashbangs", app.GetStatsPlayersFlashes)
 	r.HandleFunc("/stats/players/openingkills", app.GetStatsPlayersOpeners)
-	//r.HandleFunc("/stats/players/pistols", app.GetStatsPlayersPistolsRounds)
+	r.HandleFunc("/stats/players/pistols", app.GetStatsPlayersPistols)
 
 	//result for particular event and match
 	//forum?

@@ -26,13 +26,13 @@ func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) 
 		})
 		rounds, _ := strconv.Atoi(e.ChildText("td.statsDetail.gtSmartphone-only"))
 		rating, _ := strconv.ParseFloat(e.ChildText("td.ratingCol"), 64)
-		var maps, kdDiff int
+		var maps int
 		var kd float64
-
+		var kdDiff string
+		kdDiff = e.ChildText("td.kdDiffCol")
 		if len(name) > 1 {
 			n = name[4]
 			maps, _ = strconv.Atoi(statsDetail[0])
-			kdDiff, _ = strconv.Atoi(statsDetail[1])
 			kd, _ = strconv.ParseFloat(statsDetail[2], 64)
 		}
 
@@ -129,4 +129,44 @@ func (app application) GetStatsPlayersOpeners(w http.ResponseWriter, r *http.Req
 	})
 
 	helpers.Visit(w, c.Visit(url), url, playersOpeners)
+}
+
+func (app *application) GetStatsPlayersPistols(w http.ResponseWriter, r *http.Request) {
+	c := *colly.NewCollector()
+	var players []models.StatsPlayerPistols
+	url := "https://www.hltv.org/stats/players/pistols" //call to helpers to get query params
+
+	c.OnHTML("tr", func(e *colly.HTMLElement) {
+		link := helpers.Prefix + e.ChildAttr("a", "href")
+		name := strings.Split(e.ChildAttr("a", "href"), "/")
+		var teams []string
+		teams = append(teams, e.ChildAttrs("img.logo", "title")...)
+		var n string
+		var statsDetail []string
+		e.ForEach("td.statsDetail", func(_ int, element *colly.HTMLElement) {
+			statsDetail = append(statsDetail, element.Text)
+		})
+		rating, _ := strconv.ParseFloat(e.ChildText("td.ratingCol"), 64)
+		var maps int
+		var kd float64
+		kdDiff := e.ChildText("td.kdDiffCol")
+		if len(name) > 1 {
+			n = name[4]
+			maps, _ = strconv.Atoi(statsDetail[0])
+			kd, _ = strconv.ParseFloat(statsDetail[1], 64)
+		}
+
+		player := models.StatsPlayerPistols{
+			Link:      link,
+			Name:      n,
+			Team:      teams,
+			MapsCount: maps,
+			KDDiff:    kdDiff,
+			KD:        kd,
+			Rating:    rating,
+		}
+		players = append(players, player)
+	})
+
+	helpers.Visit(w, c.Visit(url), url, players)
 }
