@@ -43,32 +43,6 @@ func ResultsParams(r *http.Request) (url string) {
 	return url
 }
 
-func getRangeParam(params *url.Values, url *string, start, end string) string {
-	if (params.Get(start) != "") && (params.Get(end) != "") {
-		if strings.LastIndex(*url, "?") != -1 {
-			*url += "&" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
-		} else {
-			*url += "?" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
-		}
-	}
-	return *url
-}
-
-func getParam(params *url.Values, url *string, paramName string) string {
-	for _, val := range *params {
-		for i := 0; i < len(val); i++ {
-			if params.Get(paramName) != "" {
-				if strings.LastIndex(*url, "?") != -1 {
-					*url += "&" + paramName + "=" + val[i]
-				} else {
-					*url += "?" + paramName + "=" + val[i]
-				}
-			}
-		}
-	}
-	return *url
-}
-
 func EventsParams(r *http.Request) (url string) {
 	params := r.URL.Query()
 	const eventsDefaultUrl = "https://www.hltv.org/events#tab-ALL"
@@ -102,4 +76,30 @@ func EventsArchiveParams(r *http.Request) (url string) {
 	url = getParam(&params, &url, offset)
 
 	return url
+}
+
+func getRangeParam(params *url.Values, url *string, start, end string) string {
+	if (params.Get(start) != "") && (params.Get(end) != "") {
+		if strings.LastIndex(*url, "?") != -1 {
+			*url += "&" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
+		} else {
+			*url += "?" + start + "=" + params.Get(start) + "&" + end + "=" + params.Get(end)
+		}
+	}
+	return *url
+}
+
+func getParam(params *url.Values, url *string, paramName string) string {
+	for _, val := range *params {
+		for i := 0; i < len(val); i++ {
+			if params.Get(paramName) != "" {
+				if strings.LastIndex(*url, "?") != -1 {
+					*url += "&" + paramName + "=" + val[i]
+				} else {
+					*url += "?" + paramName + "=" + val[i]
+				}
+			}
+		}
+	}
+	return *url
 }

@@ -68,3 +68,16 @@ type StatsPlayer struct {
 	KD          float64  `json:"K/D,omitempty"`
 	Rating      float64  `json:"rating,omitempty"`
 }
+
+type StatsPlayerFlashes struct {
+	Link        string  `json:"link"`
+	Name        string  `json:"name"`
+	MapsCount   int     `json:"mapsCount"`
+	RoundsCount int     `json:"roundsCount"`
+	Thrown      float64 `json:"thrown"`
+	Blinded     string  `json:"blinded"`
+	OppFlashed  string  `json:"oppFlashed"`
+	Diff        string  `json:"diff"`
+	FA          float64 `json:"FA"`
+	Success     float64 `json:"success"`
+}
