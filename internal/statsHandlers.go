@@ -10,8 +10,8 @@ import (
 )
 
 // stats page
-func (app application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) {
-	c := colly.NewCollector()
+func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) {
+	c := *colly.NewCollector()
 	var players []models.StatsPlayer
 	url := "https://www.hltv.org/stats/players"
 
@@ -51,18 +51,7 @@ func (app application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) {
 
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-
-	if err := helpers.ToJson(players, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
+	helpers.Visit(w, c.Visit(url), url, players)
 }
 
 // player stats page

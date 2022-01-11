@@ -42,16 +42,5 @@ func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 		})
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-
-	if err := helpers.ToJson(results, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
+	helpers.Visit(w, c.Visit(url), url, results)
 }

@@ -3,8 +3,10 @@ package helpers
 import (
 	"encoding/json"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
+	"net/http"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -39,4 +41,18 @@ func MatchesLink(uri string) string {
 		return "https://www.hltv.org/matches?predefinedFilter=lan_only"
 	}
 	return "https://www.hltv.org/matches"
+}
+
+func Visit(w http.ResponseWriter, visit error, url string, toJson interface{}) {
+	if visit != nil {
+		log.Errorf("Bad request to %v ", url)
+		http.Error(w, UrlVisitError, http.StatusBadRequest)
+		return
+	}
+
+	if err := ToJson(toJson, w); err != nil {
+		log.Errorf("Error marshaling to json %v", err)
+		http.Error(w, JsonMarshalingError, http.StatusInternalServerError)
+		return
+	}
 }

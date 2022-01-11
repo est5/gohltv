@@ -31,18 +31,7 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 		})
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-	if err := helpers.ToJson(events, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
-
+	helpers.Visit(w, c.Visit(url), url, events)
 }
 
 func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
@@ -102,19 +91,7 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 		})
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-
-	if err := helpers.ToJson(events, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
-
+	helpers.Visit(w, c.Visit(url), url, events)
 }
 
 func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
@@ -149,17 +126,6 @@ func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) 
 			events = append(events, event)
 		})
 	})
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
 
-	if err := helpers.ToJson(events, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
-
+	helpers.Visit(w, c.Visit(url), url, events)
 }

@@ -45,24 +45,11 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 		})
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-
-	if err := helpers.ToJson(matches, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
-
+	helpers.Visit(w, c.Visit(url), url, matches)
 }
 
 func (app *application) GetLiveMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	//vars := mux.Vars(r)
 	url := helpers.Prefix + "/matches"
 	var liveMatches []models.LiveMatch
 	c.OnHTML("div.liveMatch-container", func(e *colly.HTMLElement) {
@@ -93,16 +80,5 @@ func (app *application) GetLiveMatches(w http.ResponseWriter, r *http.Request) {
 		liveMatches = append(liveMatches, liveMatch)
 	})
 
-	err := c.Visit(url)
-	if err != nil {
-		app.log.Errorf("Bad request to %v", url)
-		http.Error(w, helpers.UrlVisitError, http.StatusBadRequest)
-		return
-	}
-
-	if err := helpers.ToJson(liveMatches, w); err != nil {
-		app.log.Errorf("Error marshaling to json %v", err)
-		http.Error(w, helpers.JsonMarshalingError, http.StatusInternalServerError)
-		return
-	}
+	helpers.Visit(w, c.Visit(url), url, liveMatches)
 }
