@@ -91,3 +91,42 @@ func (app application) GetStatsPlayersFlashes(w http.ResponseWriter, r *http.Req
 
 	helpers.Visit(w, c.Visit(url), url, playersFlashes)
 }
+
+func (app application) GetStatsPlayersOpeners(w http.ResponseWriter, r *http.Request) {
+	c := colly.NewCollector()
+	url := "https://www.hltv.org/stats/players/openingkills" //params
+	var playersOpeners []models.StatsPlayerOpener
+	c.OnHTML("tbody", func(e *colly.HTMLElement) {
+
+		e.ForEach("tr", func(_ int, element *colly.HTMLElement) {
+			var blob string
+			link := helpers.Prefix + e.ChildAttr("a", "href")
+			blob += element.Text
+			splited := strings.Split(strings.TrimSpace(blob), "\n")
+			name := strings.TrimSpace(strings.TrimSpace(splited[0]))
+			maps, _ := strconv.Atoi(strings.TrimSpace(splited[1]))
+			rounds, _ := strconv.Atoi(strings.TrimSpace(splited[2]))
+			kpr, _ := strconv.ParseFloat(strings.TrimSpace(splited[3]), 64)
+			dpr, _ := strconv.ParseFloat(strings.TrimSpace(splited[4]), 64)
+			attempts := strings.TrimSpace(splited[5])
+			success := strings.TrimSpace(splited[6])
+			rating, _ := strconv.ParseFloat(strings.TrimSpace(splited[7]), 64)
+
+			player := models.StatsPlayerOpener{
+				Link:        link,
+				Name:        name,
+				MapsCount:   maps,
+				RoundsCount: rounds,
+				KPR:         kpr,
+				DPR:         dpr,
+				Attempts:    attempts,
+				Success:     success,
+				Rating:      rating,
+			}
+
+			playersOpeners = append(playersOpeners, player)
+		})
+	})
+
+	helpers.Visit(w, c.Visit(url), url, playersOpeners)
+}

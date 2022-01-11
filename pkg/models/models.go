@@ -81,3 +81,15 @@ type StatsPlayerFlashes struct {
 	FA          float64 `json:"FA"`
 	Success     float64 `json:"success"`
 }
+
+type StatsPlayerOpener struct {
+	Link        string  `json:"link"`
+	Name        string  `json:"name"`
+	MapsCount   int     `json:"mapsCount"`
+	RoundsCount int     `json:"roundsCount"`
+	KPR         float64 `json:"KPR"`
+	DPR         float64 `json:"DPR"`
+	Attempts    string  `json:"attempts"`
+	Success     string  `json:"success"`
+	Rating      float64 `json:"rating"`
+}
