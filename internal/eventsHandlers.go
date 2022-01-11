@@ -94,7 +94,7 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 	helpers.Visit(w, c.Visit(url), url, events)
 }
 
-func (app application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	url := helpers.EventsArchiveParams(r)
 	var events []models.ArchiveEvent

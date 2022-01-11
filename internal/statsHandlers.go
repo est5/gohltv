@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-// stats page
 func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) {
 	c := *colly.NewCollector()
 	var players []models.StatsPlayer
@@ -53,7 +52,3 @@ func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) 
 
 	helpers.Visit(w, c.Visit(url), url, players)
 }
-
-// player stats page
-
-// team stats page
