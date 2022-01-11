@@ -11,7 +11,8 @@ import (
 
 func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := helpers.EventsParams(r)
+	url := helpers.GetUrl(r)
+	url = strings.Replace(url, "ongoing", "", 1)
 	var events []models.OngoingEvent
 
 	c.OnHTML("div#ALL.tab-content", func(e *colly.HTMLElement) {
@@ -36,7 +37,8 @@ func (app *application) GetOngoingEvents(w http.ResponseWriter, r *http.Request)
 
 func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := helpers.EventsParams(r)
+	url := helpers.GetUrl(r)
+	url = strings.Replace(url, "upcoming", "", 1)
 	var events []models.UpcomingEvent
 
 	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {
@@ -96,7 +98,7 @@ func (app *application) GetUpcomingEvents(w http.ResponseWriter, r *http.Request
 
 func (app *application) GetArchiveEvents(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := helpers.EventsArchiveParams(r)
+	url := helpers.GetUrl(r)
 	var events []models.ArchiveEvent
 
 	c.OnHTML("div.events-month", func(e *colly.HTMLElement) {

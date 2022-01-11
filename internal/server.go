@@ -21,8 +21,8 @@ func Run() {
 	srv := &http.Server{
 		Addr:         *addr,
 		Handler:      app.routes(),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  30 * time.Second,
 	}
 

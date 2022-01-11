@@ -13,7 +13,7 @@ import (
 func (app *application) GetResults(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 	var results []models.ResultSet
-	url := helpers.ResultsParams(r)
+	url := helpers.GetUrl(r)
 	c.OnHTML("div.results", func(e *colly.HTMLElement) {
 		e.ForEach("div.result-con", func(_ int, element *colly.HTMLElement) {
 			link := helpers.Prefix + element.ChildAttr("a.a-reset", "href")

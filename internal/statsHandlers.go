@@ -12,14 +12,13 @@ import (
 func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) {
 	c := *colly.NewCollector()
 	var players []models.StatsPlayer
-	url := "https://www.hltv.org/stats/players" //call to helpers to get query params
+	url := helpers.GetUrl(r)
 
 	c.OnHTML("tr", func(e *colly.HTMLElement) {
 		link := helpers.Prefix + e.ChildAttr("a", "href")
-		name := strings.Split(e.ChildAttr("a", "href"), "/")
+		name := e.ChildText("a")
 		var teams []string
 		teams = append(teams, e.ChildAttrs("img.logo", "title")...)
-		var n string
 		var statsDetail []string
 		e.ForEach("td.statsDetail", func(_ int, element *colly.HTMLElement) {
 			statsDetail = append(statsDetail, element.Text)
@@ -31,22 +30,21 @@ func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) 
 		var kdDiff string
 		kdDiff = e.ChildText("td.kdDiffCol")
 		if len(name) > 1 {
-			n = name[4]
 			maps, _ = strconv.Atoi(statsDetail[0])
 			kd, _ = strconv.ParseFloat(statsDetail[2], 64)
+			player := models.StatsPlayer{
+				Link:        link,
+				Name:        name,
+				Team:        teams,
+				MapsCount:   maps,
+				RoundsCount: rounds,
+				KDDiff:      kdDiff,
+				KD:          kd,
+				Rating:      rating,
+			}
+			players = append(players, player)
 		}
 
-		player := models.StatsPlayer{
-			Link:        link,
-			Name:        n,
-			Team:        teams,
-			MapsCount:   maps,
-			RoundsCount: rounds,
-			KDDiff:      kdDiff,
-			KD:          kd,
-			Rating:      rating,
-		}
-		players = append(players, player)
 	})
 
 	helpers.Visit(w, c.Visit(url), url, players)
@@ -54,7 +52,7 @@ func (app *application) GetStatsPlayers(w http.ResponseWriter, r *http.Request) 
 
 func (app application) GetStatsPlayersFlashes(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := "https://www.hltv.org/stats/players/flashbangs" // call to helper to get params
+	url := helpers.GetUrl(r)
 	var playersFlashes []models.StatsPlayerFlashes
 
 	c.OnHTML("tbody", func(e *colly.HTMLElement) {
@@ -94,7 +92,7 @@ func (app application) GetStatsPlayersFlashes(w http.ResponseWriter, r *http.Req
 
 func (app application) GetStatsPlayersOpeners(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := "https://www.hltv.org/stats/players/openingkills" //params
+	url := helpers.GetUrl(r)
 	var playersOpeners []models.StatsPlayerOpener
 	c.OnHTML("tbody", func(e *colly.HTMLElement) {
 
@@ -134,14 +132,13 @@ func (app application) GetStatsPlayersOpeners(w http.ResponseWriter, r *http.Req
 func (app *application) GetStatsPlayersPistols(w http.ResponseWriter, r *http.Request) {
 	c := *colly.NewCollector()
 	var players []models.StatsPlayerPistols
-	url := "https://www.hltv.org/stats/players/pistols" //call to helpers to get query params
+	url := helpers.GetUrl(r)
 
 	c.OnHTML("tr", func(e *colly.HTMLElement) {
 		link := helpers.Prefix + e.ChildAttr("a", "href")
-		name := strings.Split(e.ChildAttr("a", "href"), "/")
+		name := e.ChildText("a")
 		var teams []string
 		teams = append(teams, e.ChildAttrs("img.logo", "title")...)
-		var n string
 		var statsDetail []string
 		e.ForEach("td.statsDetail", func(_ int, element *colly.HTMLElement) {
 			statsDetail = append(statsDetail, element.Text)
@@ -151,21 +148,20 @@ func (app *application) GetStatsPlayersPistols(w http.ResponseWriter, r *http.Re
 		var kd float64
 		kdDiff := e.ChildText("td.kdDiffCol")
 		if len(name) > 1 {
-			n = name[4]
 			maps, _ = strconv.Atoi(statsDetail[0])
 			kd, _ = strconv.ParseFloat(statsDetail[1], 64)
+			player := models.StatsPlayerPistols{
+				Link:      link,
+				Name:      name,
+				Team:      teams,
+				MapsCount: maps,
+				KDDiff:    kdDiff,
+				KD:        kd,
+				Rating:    rating,
+			}
+			players = append(players, player)
 		}
 
-		player := models.StatsPlayerPistols{
-			Link:      link,
-			Name:      n,
-			Team:      teams,
-			MapsCount: maps,
-			KDDiff:    kdDiff,
-			KD:        kd,
-			Rating:    rating,
-		}
-		players = append(players, player)
 	})
 
 	helpers.Visit(w, c.Visit(url), url, players)

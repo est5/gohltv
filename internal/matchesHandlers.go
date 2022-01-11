@@ -50,7 +50,7 @@ func (app *application) GetUpcomingMatches(w http.ResponseWriter, r *http.Reques
 
 func (app *application) GetLiveMatches(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
-	url := helpers.Prefix + "/matches"
+	url := helpers.GetUrl(r)
 	var liveMatches []models.LiveMatch
 	c.OnHTML("div.liveMatch-container", func(e *colly.HTMLElement) {
 		link := helpers.Prefix + e.ChildAttr("a.match.a-reset", "href")
